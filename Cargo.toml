@@ -8,6 +8,8 @@ license = "MIT"
 readme = "README.md"
 description = "A static website generator."
 categories = ["web-programming"]
+repository = "https://github.com/Cringere/mini-builder-rs"
+documentation = "https://docs.rs/mini-builder-rs/latest/mini_builder_rs/"
 
 [dependencies]
 notify = "4.0.17"
