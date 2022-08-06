@@ -7,7 +7,7 @@ authors = ["Roy Varon Weinryb <varonroy@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 description = "A static website generator."
-categories = ["static-website-generator", "web"]
+categories = ["web-programming"]
 
 [dependencies]
 notify = "4.0.17"
