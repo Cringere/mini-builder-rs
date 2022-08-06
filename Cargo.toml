@@ -1,0 +1,21 @@
+[package]
+name = "mini-builder-rs"
+version = "0.1.0"
+edition = "2021"
+
+authors = ["Roy Varon Weinryb <varonroy@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+description = "A static website generator."
+categories = ["static-website-generator", "web"]
+
+[dependencies]
+notify = "4.0.17"
+regex = "1.5"
+lazy_static = "1.4.0"
+hmap = "0.1.0"
+log = "0.4"
+approx = "0.5.1"
+
+[dev-dependencies]
+simple_logger = "2.2.0"
