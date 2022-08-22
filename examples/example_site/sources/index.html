@@ -8,6 +8,33 @@
 
 	{{@ navigation_menu(page = 'index')}}
 	<a href="./pages/files_page.html">Go to files</a>
+
+	<h3>Adding Integer Variables</h3>
+	{{counter = 1}}
+	<p>counter = {{counter}}</p>
+	<br>
+	{{counter = counter + 1}}
+	<p>counter = {{counter}}</p>
+	<br>
+	{{counter = counter + 1}}
+	<p>counter = {{counter}}</p>
+	<br>
+	{{counter = counter + 1}}
+	<p>counter = {{counter}}</p>
+
+	<h3>Adding String Variables</h3>
+	{{counter = '0'}}
+	<p>counter = {{counter}}</p>
+	<br>
+	{{counter = counter + ''_'0'_''}}
+	<p>counter = {{counter}}</p>
+	<br>
+	{{counter = counter + ''_'1'_''}}
+	<p>counter = {{counter}}</p>
+	<br>
+	{{counter = counter + ''_'2'_''}}
+	<p>counter = {{counter}}</p>
+
 </body>
 
 </html>

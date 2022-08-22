@@ -7,7 +7,7 @@ pub type Expressions<'a> = Vec<Box<Expression<'a>>>;
 pub type NamedExpressions<'a> = Vec<Box<(&'a str, Expression<'a>)>>;
 
 /// Expressions are trees of operations that can be evaluated into a [Value].
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expression<'a> {
 	// arithmetics
 	Additive(Expressions<'a>, Expressions<'a>),

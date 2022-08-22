@@ -1,4 +1,4 @@
-use crate::parser::expression::Expression;
+use crate::{parser::expression::Expression, tokenizer::token::TokenType};
 
 pub type Blocks<'a, 'b> = Vec<Box<Block<'a, 'b>>>;
 
@@ -8,6 +8,7 @@ pub type Blocks<'a, 'b> = Vec<Box<Block<'a, 'b>>>;
 pub enum Block<'a, 'b> {
 	Source(&'b str),
 	Expression(&'a Expression<'b>),
+	Assignment(&'b str, TokenType, &'a Expression<'b>),
 	If(Box<IfBlock<'a, 'b>>),
 	For(Box<ForBlock<'a, 'b>>),
 }

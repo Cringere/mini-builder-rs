@@ -92,6 +92,8 @@ pub struct Tokenizer<'a> {
 	static_symbol_tokens: Vec<(String, TokenType)>,
 	// Identifiers with a specific name.
 	reserved_words: HashMap<&'static str, TokenType>,
+	// used for lookahead
+	recorded: Vec<(usize, &'a str)>,
 }
 
 impl<'a> Tokenizer<'a> {
@@ -148,12 +150,21 @@ impl<'a> Tokenizer<'a> {
 			tokens: Vec::new(),
 			static_symbol_tokens,
 			reserved_words,
+			recorded: Vec::new(),
 		}
 	}
 
 	fn advance(&mut self, len: usize) {
 		self.left = &self.left[len..];
 		self.location += len;
+	}
+
+	fn record(&mut self) {
+		self.recorded.push((self.location, self.left));
+	}
+
+	fn restore(&mut self) {
+		(self.location, self.left) = self.recorded.pop().unwrap();
 	}
 
 	fn push_and_advance(&mut self, tt: TokenType, len: usize) {
@@ -194,7 +205,6 @@ impl<'a> Tokenizer<'a> {
 		// Regex of tokens that are defined with patterns
 		lazy_static! {
 			static ref IDENTIFIER_RE: Regex = Regex::new(r"^([_a-zA-Z][_a-zA-Z0-9]*)").unwrap();
-			static ref STRING_LITERAL_RE: Regex = Regex::new(r"^'([^']*)'").unwrap();
 			static ref NUMERICAL_LITERAL_RE: Regex = Regex::new(r"^([0-9]+)").unwrap();
 			static ref FILE_PATH_RE: Regex = Regex::new(r"^\s*([0-9a-zA-z_\./]+)").unwrap();
 		}
@@ -267,11 +277,34 @@ impl<'a> Tokenizer<'a> {
 		}
 
 		// check string literals
-		if let Some(captures) = STRING_LITERAL_RE.captures(self.left) {
-			let l = captures.get(1).unwrap().as_str().len();
-			self.advance(1);
-			self.push_and_advance(TokenType::StringLiteral, l);
-			self.advance(1);
+		if self.left.starts_with("'") {
+			let start_location = self.location;
+
+			// match `'` as many times as possible - extract the delimiter
+			let start_len = self.left.len();
+			self.left = self.left.trim_start_matches("'");
+			let delimiter_len = start_len - self.left.len();
+			let delimiter = "'".repeat(delimiter_len);
+
+			// match characters until the
+			self.record();
+			let mut string_len = 0;
+			while !self.left.starts_with(&delimiter) {
+				// if no more characters are left, return an unclosed string
+				// error
+				if self.left.len() == 0 {
+					return Err(TokenizerError::UnclosedString(start_len));
+				}
+				self.advance(1);
+				string_len += 1;
+			}
+			self.restore();
+
+			// extract the content of the string literal and push it
+			self.push_and_advance(TokenType::StringLiteral, string_len);
+
+			// advance past the delimiter
+			self.advance(delimiter_len);
 			return Ok(false);
 		}
 
@@ -411,7 +444,7 @@ mod tests {
 	#[test]
 	fn test_05() {
 		let tokens = Tokenizer::new(
-			"{{@ file(arg0 = arg, arg1 = 'txt', arg2 = 123 > num)}}",
+			"{{@ file(arg0 = arg, arg1 = 'txt', arg2 = 123 > num, arg3 = ''_'a'_'')}}",
 			TokenizerOptions::default(),
 		)
 		.tokenize()
@@ -435,12 +468,17 @@ mod tests {
 			(TokenType::Assign, None),
 			(TokenType::StringLiteral, Some("txt")),
 			(TokenType::Comma, None),
-			// arg2 = 123 > num
+			// arg2 = 123 > num,
 			(TokenType::Identifier, Some("arg2")),
 			(TokenType::Assign, None),
 			(TokenType::NumericalLiteral, Some("123")),
 			(TokenType::GreaterThan, None),
 			(TokenType::Identifier, Some("num")),
+			(TokenType::Comma, None),
+			//  arg3 = ''_'a'_''
+			(TokenType::Identifier, Some("arg3")),
+			(TokenType::Assign, None),
+			(TokenType::StringLiteral, Some("_'a'_")),
 			// )}}
 			(TokenType::RBracket, None),
 			(TokenType::Close, None),

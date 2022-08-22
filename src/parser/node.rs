@@ -1,4 +1,4 @@
-use crate::tokenizer::token::Token;
+use crate::tokenizer::token::{Token, TokenType};
 
 use super::expression::Expression;
 
@@ -9,6 +9,7 @@ pub type Nodes<'a> = Vec<Box<Node<'a>>>;
 pub enum NodeContent<'a> {
 	Source(&'a str),
 	Expression(Expression<'a>),
+	Assignment(&'a str, TokenType, Expression<'a>),
 	If(Expression<'a>),
 	For(&'a str, Expression<'a>),
 	Elif(Expression<'a>),
@@ -39,6 +40,13 @@ impl<'a> Node<'a> {
 
 	pub fn expression(location: usize, expression: Expression<'a>) -> Self {
 		Self::new(location, NodeContent::Expression(expression))
+	}
+
+	pub fn assignment(location: usize, name: &'a str, expression: Expression<'a>) -> Self {
+		Self::new(
+			location,
+			NodeContent::Assignment(name, TokenType::Assign, expression),
+		)
 	}
 
 	pub fn if_node(location: usize, expression: Expression<'a>) -> Self {

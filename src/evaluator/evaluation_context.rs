@@ -66,13 +66,17 @@ pub struct EvaluationContext<'c, E: Evaluate> {
 impl<'c, E: Evaluate> EvaluationContext<'c, E> {
 	pub fn new(
 		global_variables: &'c Variables,
-		local_variables: Vec<Variables>,
+		mut local_variables: Vec<Variables>,
 		builders: &'c HashMap<String, E>,
 		functions: &'c HashMap<String, Box<dyn Fn(&[Value]) -> Value + 'static>>,
 		max_depth: usize,
 		warnings: EvaluationContextWarnings,
 		context_location: ContextLocation,
 	) -> Self {
+		if local_variables.is_empty() {
+			local_variables.push(HashMap::new());
+		}
+
 		Self {
 			global_variables,
 			local_variables,
@@ -196,5 +200,12 @@ impl<'c, E: Evaluate> EvaluationContext<'c, E> {
 
 	pub fn pop_variables(&mut self) {
 		self.local_variables.pop();
+	}
+
+	pub fn assign_local_variable(&mut self, name: &str, value: Value) {
+		self.local_variables
+			.last_mut()
+			.unwrap()
+			.insert(name.to_string(), value);
 	}
 }

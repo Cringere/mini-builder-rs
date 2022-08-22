@@ -110,6 +110,12 @@
 //! }
 //! ```
 //! Functions are defined by the type: `Box<dyn Fn(&[Value]) -> Value + 'static>`.
+//! Strings are delimited with the `'` character. In order to use the `'` inside
+//! a string, it can be delimited with multiple `'`s. For example:
+//! ```
+//! ''_'a'_'' // will result in the literal _'a'_
+//! '''_''a''_''' // will result in the literal _''a''_
+//! ```
 //!
 //! ## Directives
 //! A directive is a piece of code with the pattern `{{...}}` that adds logic to

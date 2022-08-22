@@ -1,4 +1,7 @@
-use crate::{parser::parser_error::ParserError, tokenizer::tokenizer_error::TokenizerError};
+use crate::{
+	parser::{node::NodeContent, parser_error::ParserError},
+	tokenizer::tokenizer_error::TokenizerError,
+};
 
 /// An error that is return by [super::evaluator::EvaluatorBuilder] when an
 /// invalid input passed.
@@ -7,6 +10,7 @@ pub enum EvaluatorBuilderError {
 	ExpectedOneOf(usize, Vec<String>),
 	TokenizerError(TokenizerError),
 	ParserError(ParserError),
+	UnexpectedNodeContent(String),
 }
 
 impl std::fmt::Display for EvaluatorBuilderError {
@@ -19,6 +23,9 @@ impl std::fmt::Display for EvaluatorBuilderError {
 			),
 			Self::TokenizerError(tokenizer_error) => std::fmt::Display::fmt(&tokenizer_error, f),
 			Self::ParserError(parser_error) => std::fmt::Display::fmt(&parser_error, f),
+			Self::UnexpectedNodeContent(s) => {
+				write!(f, "unexpected node content {:?}", s)
+			}
 		}
 	}
 }

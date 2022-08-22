@@ -264,6 +264,11 @@ pub fn evaluate_block<'a, 'b, 'c>(
 	match block {
 		Block::Source(s) => s.to_string(),
 		Block::Expression(expression) => evaluate_expression(context, *expression).to_string(),
+		Block::Assignment(name, _tt, expression) => {
+			let value = evaluate_expression(context, *expression);
+			context.assign_local_variable(name, value);
+			String::new()
+		}
 		Block::If(if_block) => {
 			let mut s = None;
 
@@ -368,7 +373,9 @@ pub fn list_dependencies_expression(expression: &Expression, dependencies: &mut 
 /// add them to the dependencies.
 pub fn list_dependencies_block(block: &Block, dependencies: &mut Dependencies) {
 	match block {
-		Block::Expression(expression) => list_dependencies_expression(expression, dependencies),
+		Block::Expression(expression) | Block::Assignment(.., expression) => {
+			list_dependencies_expression(expression, dependencies)
+		}
 		Block::If(if_block) => {
 			// if arms
 			for (expression, blocks) in if_block.if_blocks.iter() {

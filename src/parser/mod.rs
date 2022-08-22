@@ -501,6 +501,25 @@ impl<'a, 'b> Parser<'a, 'b> {
 		self.parse_ternary()
 	}
 
+	fn see_assignment(&self) -> bool {
+		if let (Some(TokenType::Identifier), Some(TokenType::Assign)) = (
+			self.tokens.get(self.i).map(|t| t.tt),
+			self.tokens.get(self.i + 1).map(|t| t.tt),
+		) {
+			true
+		} else {
+			false
+		}
+	}
+
+	fn parse_assignment(&mut self) -> (&'a str, ExpressionResult<'a>) {
+		let name = self.have_content();
+		if !self.have_specific_type(TokenType::Assign) {
+			todo!("error - expected =")
+		}
+		(name, self.parse_expression())
+	}
+
 	fn parse_directive(&mut self) -> NodeResult<'a> {
 		self.expect_type(TokenType::Open)?;
 		self.advance();
@@ -580,13 +599,18 @@ impl<'a, 'b> Parser<'a, 'b> {
 				}
 			}
 			_ => {
-				// parse the expression
-				let expression = Node::expression(location, self.parse_expression()?);
+				// parse either an assignment or an expression
+				let node = if self.see_assignment() {
+					let (name, expression) = self.parse_assignment();
+					Node::assignment(location, name, expression?)
+				} else {
+					Node::expression(location, self.parse_expression()?)
+				};
 
 				// consume the `Close` token and return
 				self.expect_type(TokenType::Close)?;
 				self.advance();
-				Ok(expression)
+				Ok(node)
 			}
 		}
 	}

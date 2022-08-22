@@ -2,6 +2,7 @@
 pub enum TokenizerError {
 	UnexpectedCharacter(usize),
 	MustHaveFilePathAfterAt(usize, String),
+	UnclosedString(usize),
 }
 
 impl std::fmt::Display for TokenizerError {
@@ -12,6 +13,7 @@ impl std::fmt::Display for TokenizerError {
 				f,
 				"A file path must follow the `At`({at}) symbol. Error at index {i}."
 			),
+			Self::UnclosedString(i) => write!(f, "Unclosed string at index {i}."),
 		}
 	}
 }

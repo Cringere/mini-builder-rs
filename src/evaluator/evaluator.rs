@@ -82,6 +82,9 @@ impl<'a, 'b> EvaluatorBuilder<'a, 'b> {
 				NodeContent::Expression(expression) => {
 					blocks.push(Box::new(Block::Expression(expression)))
 				}
+				NodeContent::Assignment(name, tt, expression) => {
+					blocks.push(Box::new(Block::Assignment(name, *tt, expression)))
+				}
 				NodeContent::If(expression) => {
 					let if_block = self.build_if(expression)?;
 					blocks.push(Box::new(Block::If(Box::new(if_block))));
@@ -105,7 +108,12 @@ impl<'a, 'b> EvaluatorBuilder<'a, 'b> {
 					self.regress();
 					break;
 				}
-				_ => todo!("error"),
+				_ => {
+					return Err(EvaluatorBuilderError::UnexpectedNodeContent(format!(
+						"{:?}",
+						n.content
+					)))
+				}
 			}
 		}
 		Ok(blocks)
