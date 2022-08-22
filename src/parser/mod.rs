@@ -402,7 +402,10 @@ impl<'a, 'b> Parser<'a, 'b> {
 				TokenType::NumericalLiteral => Ok(Expression::Value(Value::Number(
 					self.have_content().parse::<f32>().unwrap(),
 				))),
-				TokenType::NoneLiteral => Ok(Expression::Value(Value::None)),
+				TokenType::NoneLiteral => {
+					self.advance();
+					Ok(Expression::Value(Value::None))
+				}
 				// if none of the above matched, then the token type is invalid
 				_ => Err(self.unexpected_token_error()),
 			}

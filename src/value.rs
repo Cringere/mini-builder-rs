@@ -184,6 +184,14 @@ impl Value {
 			return Self::Bool(a == b);
 		}
 
+		if self.is_none() && other.is_none() {
+			return Self::Bool(true);
+		}
+
+		if self.is_none() || other.is_none() {
+			return Self::Bool(false);
+		}
+
 		Self::None
 	}
 
@@ -198,6 +206,14 @@ impl Value {
 
 		if let (Self::Text(a), Self::Text(b)) = (self, other) {
 			return Self::Bool(a != b);
+		}
+
+		if self.is_none() && other.is_none() {
+			return Self::Bool(false);
+		}
+
+		if self.is_none() || other.is_none() {
+			return Self::Bool(true);
 		}
 
 		Self::None

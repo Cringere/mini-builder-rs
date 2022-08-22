@@ -473,7 +473,7 @@ mod tests_evaluator {
 		source: &str,
 		global_variables: Vec<(&str, Value)>,
 		builders: HashMap<String, Evaluator>,
-	) {
+	) -> String {
 		// tokenize, parse, and build the evaluation blocks
 		let tokens = Tokenizer::new(source, TokenizerOptions::default())
 			.tokenize()
@@ -500,7 +500,9 @@ mod tests_evaluator {
 			EvaluationContextWarnings::default(),
 			ContextLocation::source("main"),
 		);
-		println!("{}", evaluator.evaluate(&mut context));
+		let out = evaluator.evaluate(&mut context);
+		println!("{}", out);
+		out
 	}
 
 	#[test]
@@ -551,6 +553,7 @@ mod tests_evaluator {
 
 	#[test]
 	fn test_07() {
+		// create a template
 		let source = "saying hi to: {{name}}";
 		// tokenize, parse, and build the evaluation blocks
 		let tokens = Tokenizer::new(source, TokenizerOptions::default())
@@ -567,6 +570,16 @@ mod tests_evaluator {
 				format!("say_hi") => evaluator
 			),
 		);
+	}
+
+	#[test]
+	fn test_08() {
+		let source = "{{a != None ? a : 'default'}}";
+		assert_eq!(
+			&test(source, vec![("a", Value::text("var-a"))], HashMap::new()),
+			"var-a"
+		);
+		assert_eq!(&test(source, vec![], HashMap::new()), "default");
 	}
 }
 

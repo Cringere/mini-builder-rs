@@ -278,8 +278,6 @@ impl<'a> Tokenizer<'a> {
 
 		// check string literals
 		if self.left.starts_with("'") {
-			let start_location = self.location;
-
 			// match `'` as many times as possible - extract the delimiter
 			let start_len = self.left.len();
 			self.left = self.left.trim_start_matches("'");
@@ -481,6 +479,34 @@ mod tests {
 			(TokenType::StringLiteral, Some("_'a'_")),
 			// )}}
 			(TokenType::RBracket, None),
+			(TokenType::Close, None),
+		];
+
+		compare_tokens(&tokens, &target_tokens);
+	}
+
+	#[test]
+	fn test_06() {
+		let tokens = Tokenizer::new("{{a != None ? a : 'default'}}", TokenizerOptions::default())
+			.tokenize()
+			.unwrap();
+
+		let target_tokens = vec![
+			// {{
+			(TokenType::Open, None),
+			// a != None
+			(TokenType::Identifier, Some("a")),
+			(TokenType::NotEquals, None),
+			(TokenType::NoneLiteral, None),
+			// ?
+			(TokenType::QuestionMark, None),
+			// a
+			(TokenType::Identifier, Some("a")),
+			// :
+			(TokenType::Colon, None),
+			// 'default''
+			(TokenType::StringLiteral, Some("default")),
+			// }}
 			(TokenType::Close, None),
 		];
 
